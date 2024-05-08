@@ -1,10 +1,16 @@
-from detection import loading_pipeline
+from helper_funcs import start_app
 from database.db_init_funcs import connect_db
+from database.db_helper_funcs import get_all_images, get_all_labels
+import torch
+import io
+import numpy as np
+import pickle
+from recognition import start_recognition_pipeline
+import os
 
 
 def main():
-    loading_pipeline('./data')
-    # yolo_results = yolo_detect('./data')
-    # save_images_with_boxes(yolo_results, './boxes_img.png')
+    start_app()
+
 
 main()
