@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75b88f2a-1c44-4e62-ae53-d05e2472605e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/course_project_2024_private.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/course_project_2024_private.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/course_project_face_detector.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/db_helper_funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db_helper_funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/db_init_funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db_init_funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detection.py" beforeDir="false" afterPath="$PROJECT_DIR$/detection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pretrained_weights/yolov8n-face.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/recognition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
