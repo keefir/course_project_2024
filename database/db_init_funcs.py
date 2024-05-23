@@ -24,8 +24,20 @@ def init_classes_db(cursor):
     ''')
 
 
+def count_rows(cursor):
+    cursor.execute('''
+    SELECT Count(*) FROM images''')
+
+    return cursor.fetchall()
+
+
+# def init_first_rows(cursor):
+#     cursor.execute('''
+#     INSERT INTO images VALUES ''')
+
+
 def connect_db(path, db_name):
-    if db_name != "images.db" and db_name != "classes.db":
+    if db_name != "images.db":
         raise NameError(f"database {db_name} does not exist")
 
     connection = sqlite3.connect(os.path.join(path, db_name))
@@ -33,6 +45,7 @@ def connect_db(path, db_name):
 
     init_images_db(cursor)
     init_classes_db(cursor)
+    # num_rows = count_rows(cursor)
 
     # if db_name == "images.db":
     #     init_images_db(cursor)

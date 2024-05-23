@@ -69,7 +69,8 @@ def get_class_label(connection, cursor, class_name):
 def get_class_name(connection, cursor, class_label):
     query = f"SELECT (class_name) FROM classes WHERE id = ?"
     # print(str(class_label)
-    cursor.execute(query, str(class_label))
+    data_tuple = (str(class_label),)
+    cursor.execute(query, data_tuple)
     connection.commit()
     # print(cursor.fetchall()[0])
     return cursor.fetchall()[0][0]

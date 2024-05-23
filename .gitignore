@@ -1,0 +1,8 @@
+venv
+images.db
+data/result/csv_with_labels/*
+data/result/images_with_boxes/*
+data/to_label/*
+data/to_recognize/*
+pretrained_weights/model_resnet34_triplet.pt
+pretrained_weights/yolov8n-face.pt

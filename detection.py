@@ -31,6 +31,7 @@ def yolo_detect(path, verbose=False):
     result = yolo(imgs, verbose=verbose)
 
     print("Face detection complete.")
+
     return result
 
 

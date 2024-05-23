@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import os
 import torch
 import numpy as np
+import scipy
 import pickle
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -43,10 +44,11 @@ preprocess = transforms.Compose([
 def fit_onn(neighs, model):
     connection, cursor = connect_db('./', 'images.db')
     data = get_all_images(connection, cursor)
+    if len(data) == 0:
+        return 1
     embs = []
     classes = []
     for row in data:
-        # print(preprocess(pickle.loads(row[1])))
         embs.append(model(preprocess(pickle.loads(row[1]))[None, :, :, :]).detach().numpy()[0])  # Unblobbing
         classes.append(row[2])
     enc = LabelEncoder()
@@ -62,6 +64,8 @@ def fit_onn(neighs, model):
 
     cursor.close()
 
+    return 0
+
 
 def save_image_with_boxes(imgs, boxes, labels, paths, save_path):
     """
@@ -75,14 +79,21 @@ def save_image_with_boxes(imgs, boxes, labels, paths, save_path):
     connection, cursor = connect_db('./', 'images.db')
     for i in range(len(imgs)):
         class_names = []
+        colors = []
+        # print(labels[i])
         for label in labels[i]:
+            if label < 0:
+                class_names.append("NR")
+                colors.append("Blue")
+                continue
             class_names.append(get_class_name(connection, cursor, label))
-        # print(torch.tensor(imgs[i]).permute(2, 0, 1).shape)
+            colors.append("Green")
+        # print(class_names)
         img = torch.tensor(imgs[i]).permute(2, 0, 1)
         boxed_img = draw_bounding_boxes(img,
                                         boxes[i], labels=class_names, width=int(img.shape[1] * 0.0053),
                                         font='./fonts/English.ttf',
-                                        font_size=int(img.shape[1] * 0.04), colors="green", fill=False)
+                                        font_size=int(img.shape[1] * 0.04), colors=colors, fill=False)
         # print(boxed_img[0])
         # to_pil_image(torch.stack((boxed_img[2], boxed_img[1], boxed_img[0])), mode='RGB').save(save_path)
         to_pil_image(torch.stack((boxed_img[2], boxed_img[1], boxed_img[0])),
@@ -98,6 +109,9 @@ def make_csv_with_labels(paths, labels):
     for i in range(len(paths)):
         class_names = []
         for label in labels[i]:
+            if label < 0:
+                class_names.append("NR")
+                continue
             class_names.append(get_class_name(connection, cursor, label))
         classes.append(class_names)
     df = pd.DataFrame({'image': paths, 'classes': classes}, columns=['image', 'classes'])
@@ -123,6 +137,10 @@ def start_recognition_pipeline(path):
     model.eval()
     for i in range(len(yolo_results)):
         print(f"Found {len(yolo_results[i].boxes)} faces on image {yolo_results[i].path}.")
+
+        if len(yolo_results[i].boxes) == 0:
+            continue
+
         orig_imgs.append(yolo_results[i].orig_img)
         # boxes.append(yolo_results[i].boxes.xyxy)
         sorted_xyxy = yolo_results[i].boxes.xyxy[yolo_results[i].boxes.xyxy[:, 0].argsort()]
@@ -137,14 +155,47 @@ def start_recognition_pipeline(path):
             cropped_face = preprocess(torch.stack((cropped_face[2], cropped_face[1], cropped_face[0]))).unsqueeze(0)
             embs[-1].append(model(cropped_face).detach().numpy()[0])
 
+    if len(embs) == 0:
+        print("No faces detected on images.")
+        return
+
     neighs = KNeighborsClassifier(n_neighbors=1)
-    fit_onn(neighs, model)
+    fit_res = fit_onn(neighs, model)
+
+    if fit_res == 1:
+        print("No images found in database. Load images with classes first.")
+
+        return
 
     preds = []
     for emb in embs:
         pred = neighs.predict(emb)
-        preds.append(pred)
+        # pred_proba = neighs.predict_proba(emb)
+        # preds.append(pred)
+        # pred_probas.append(pred_proba)
+        label_set = dict()
+        dists, inds = neighs.kneighbors(emb)
+        # pred = inds[:, 0]
+        dist = dists[:, 0]
+        for i in range(len(pred)):
+            if dist[i] <= label_set.get(pred[i], (None, 999))[1]:
+                label_set[pred[i]] = (i, dist[i])
+        processed_pred = np.zeros(len(pred)) - 1
+        for key, value in label_set.items():
+            if value[1] > 1:
+                processed_pred[value[0]] = -1
+            else:
+                processed_pred[value[0]] = key
 
+        preds.append(processed_pred)
+        # preds.append(preds)
+
+        # print(dists[:, 0])
+        # print(inds[:, 0])
+        # print(scipy.special.softmax(1 / (dist[:, 0] + 1)))
+    # print(neighs.kneighbors(np.array(embs)))
+    # print(preds)
+    # dist, ind = neighs.kneighbors(embs)
     save_image_with_boxes(orig_imgs, boxes, preds, paths, './data/result/images_with_boxes')
     make_csv_with_labels(paths, preds)
 
